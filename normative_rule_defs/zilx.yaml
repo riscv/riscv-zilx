@@ -1,0 +1,239 @@
+---
+# yaml-language-server: $schema=../docs-resources/schemas/defs-schema.json
+
+$schema: "../docs-resources/schemas/defs-schema.json#"
+
+# Used to create normative rules for zilx.adoc file.
+# Tags refer to anchors in any adoc file for any ISA manual.
+
+chapter_name: Zilx (Integer Indexed Loads), Version 0.1
+
+normative_rule_definitions:
+  - name: Zilx_no_new_state
+    tag: "norm:Zilx_no_new_state"
+  - name: Zilx_addr_width
+    tag: "norm:Zilx_addr_width"
+  - name: Zilx_unscaled_ea
+    tag: "norm:Zilx_unscaled_ea"
+  - name: Zilx_scaled_ea
+    tag: "norm:Zilx_scaled_ea"
+  - name: Zilx_uw_index
+    tag: "norm:Zilx_uw_index"
+  - name: Zilx_rd_x0
+    tag: "norm:Zilx_rd_x0"
+  - name: Zilx_load_semantics
+    tag: "norm:Zilx_load_semantics"
+  - name: Zilx_sign_zero_extension
+    tag: "norm:Zilx_sign_zero_extension"
+  - name: Zilx_exceptions_ordering
+    tag: "norm:Zilx_exceptions_ordering"
+  - name: Zilx_common_encoding
+    tag: "norm:Zilx_common_encoding"
+  - name: Zilx_bit28_rsv
+    tag: "norm:Zilx_bit28_rsv"
+  - name: Zilx_width_access_size
+    tag: "norm:Zilx_width_access_size"
+  - name: Zilx_u_bit
+    tag: "norm:Zilx_u_bit"
+  - name: Zilx_type_field
+    tag: "norm:Zilx_type_field"
+  - name: Zilx_scaled_byte_rsv
+    tag: "norm:Zilx_scaled_byte_rsv"
+  - name: Zilx_rv32_rsv
+    tag: "norm:Zilx_rv32_rsv"
+  - name: Zilx_lxwu_rv32_rsv
+    tag: "norm:Zilx_lxwu_rv32_rsv"
+  - name: Zilx_lxdu_rsv
+    tag: "norm:Zilx_lxdu_rsv"
+  - name: lxb_op
+    tag: "norm:lxb_op"
+    kind: instruction
+    instance: lxb
+  - name: lxb_enc
+    tag: "norm:lxb_enc"
+    kind: instruction
+    instance: lxb
+  - name: lxbu_op
+    tag: "norm:lxbu_op"
+    kind: instruction
+    instance: lxbu
+  - name: lxbu_enc
+    tag: "norm:lxbu_enc"
+    kind: instruction
+    instance: lxbu
+  - name: lxh_op
+    tag: "norm:lxh_op"
+    kind: instruction
+    instance: lxh
+  - name: lxh_enc
+    tag: "norm:lxh_enc"
+    kind: instruction
+    instance: lxh
+  - name: lxhu_op
+    tag: "norm:lxhu_op"
+    kind: instruction
+    instance: lxhu
+  - name: lxhu_enc
+    tag: "norm:lxhu_enc"
+    kind: instruction
+    instance: lxhu
+  - name: lxw_op
+    tag: "norm:lxw_op"
+    kind: instruction
+    instance: lxw
+  - name: lxw_enc
+    tag: "norm:lxw_enc"
+    kind: instruction
+    instance: lxw
+  - name: lxwu_op
+    tag: "norm:lxwu_op"
+    kind: instruction
+    instance: lxwu
+  - name: lxwu_enc
+    tag: "norm:lxwu_enc"
+    kind: instruction
+    instance: lxwu
+  - name: lxd_op
+    tag: "norm:lxd_op"
+    kind: instruction
+    instance: lxd
+  - name: lxd_enc
+    tag: "norm:lxd_enc"
+    kind: instruction
+    instance: lxd
+  - name: lxb-uw_op
+    tag: "norm:lxb-uw_op"
+    kind: instruction
+    instance: lxb.uw
+  - name: lxb-uw_enc
+    tag: "norm:lxb-uw_enc"
+    kind: instruction
+    instance: lxb.uw
+  - name: lxbu-uw_op
+    tag: "norm:lxbu-uw_op"
+    kind: instruction
+    instance: lxbu.uw
+  - name: lxbu-uw_enc
+    tag: "norm:lxbu-uw_enc"
+    kind: instruction
+    instance: lxbu.uw
+  - name: lxh-uw_op
+    tag: "norm:lxh-uw_op"
+    kind: instruction
+    instance: lxh.uw
+  - name: lxh-uw_enc
+    tag: "norm:lxh-uw_enc"
+    kind: instruction
+    instance: lxh.uw
+  - name: lxhu-uw_op
+    tag: "norm:lxhu-uw_op"
+    kind: instruction
+    instance: lxhu.uw
+  - name: lxhu-uw_enc
+    tag: "norm:lxhu-uw_enc"
+    kind: instruction
+    instance: lxhu.uw
+  - name: lxw-uw_op
+    tag: "norm:lxw-uw_op"
+    kind: instruction
+    instance: lxw.uw
+  - name: lxw-uw_enc
+    tag: "norm:lxw-uw_enc"
+    kind: instruction
+    instance: lxw.uw
+  - name: lxwu-uw_op
+    tag: "norm:lxwu-uw_op"
+    kind: instruction
+    instance: lxwu.uw
+  - name: lxwu-uw_enc
+    tag: "norm:lxwu-uw_enc"
+    kind: instruction
+    instance: lxwu.uw
+  - name: lxd-uw_op
+    tag: "norm:lxd-uw_op"
+    kind: instruction
+    instance: lxd.uw
+  - name: lxd-uw_enc
+    tag: "norm:lxd-uw_enc"
+    kind: instruction
+    instance: lxd.uw
+  - name: lxh-s_op
+    tag: "norm:lxh-s_op"
+    kind: instruction
+    instance: lxh.s
+  - name: lxh-s_enc
+    tag: "norm:lxh-s_enc"
+    kind: instruction
+    instance: lxh.s
+  - name: lxhu-s_op
+    tag: "norm:lxhu-s_op"
+    kind: instruction
+    instance: lxhu.s
+  - name: lxhu-s_enc
+    tag: "norm:lxhu-s_enc"
+    kind: instruction
+    instance: lxhu.s
+  - name: lxw-s_op
+    tag: "norm:lxw-s_op"
+    kind: instruction
+    instance: lxw.s
+  - name: lxw-s_enc
+    tag: "norm:lxw-s_enc"
+    kind: instruction
+    instance: lxw.s
+  - name: lxwu-s_op
+    tag: "norm:lxwu-s_op"
+    kind: instruction
+    instance: lxwu.s
+  - name: lxwu-s_enc
+    tag: "norm:lxwu-s_enc"
+    kind: instruction
+    instance: lxwu.s
+  - name: lxd-s_op
+    tag: "norm:lxd-s_op"
+    kind: instruction
+    instance: lxd.s
+  - name: lxd-s_enc
+    tag: "norm:lxd-s_enc"
+    kind: instruction
+    instance: lxd.s
+  - name: lxh-s-uw_op
+    tag: "norm:lxh-s-uw_op"
+    kind: instruction
+    instance: lxh.s.uw
+  - name: lxh-s-uw_enc
+    tag: "norm:lxh-s-uw_enc"
+    kind: instruction
+    instance: lxh.s.uw
+  - name: lxhu-s-uw_op
+    tag: "norm:lxhu-s-uw_op"
+    kind: instruction
+    instance: lxhu.s.uw
+  - name: lxhu-s-uw_enc
+    tag: "norm:lxhu-s-uw_enc"
+    kind: instruction
+    instance: lxhu.s.uw
+  - name: lxw-s-uw_op
+    tag: "norm:lxw-s-uw_op"
+    kind: instruction
+    instance: lxw.s.uw
+  - name: lxw-s-uw_enc
+    tag: "norm:lxw-s-uw_enc"
+    kind: instruction
+    instance: lxw.s.uw
+  - name: lxwu-s-uw_op
+    tag: "norm:lxwu-s-uw_op"
+    kind: instruction
+    instance: lxwu.s.uw
+  - name: lxwu-s-uw_enc
+    tag: "norm:lxwu-s-uw_enc"
+    kind: instruction
+    instance: lxwu.s.uw
+  - name: lxd-s-uw_op
+    tag: "norm:lxd-s-uw_op"
+    kind: instruction
+    instance: lxd.s.uw
+  - name: lxd-s-uw_enc
+    tag: "norm:lxd-s-uw_enc"
+    kind: instruction
+    instance: lxd.s.uw

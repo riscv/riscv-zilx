@@ -1,0 +1,854 @@
+[[ext:zilx]]
+=== ext:zilx[] Extension for Integer Indexed Loads, Version 0.1
+
+The ext:zilx[] extension provides integer load instructions that compute
+their effective address from a base register and an index register.
+The extension defines unscaled indexed loads and scaled indexed loads.
+On RV64, the extension also defines forms that zero-extend the low 32 bits
+of the index register before forming the effective address.
+
+[#norm:Zilx_no_new_state]#The ext:zilx[] extension adds no architectural
+state, CSRs, or memory-ordering rules.#
+
+==== Indexed Load Classes
+
+Each ext:zilx[] instruction reads a base operand in _rs1_ and an index
+operand in _rs2_, computes an effective address, loads a byte, halfword,
+word, or doubleword from memory, and writes the extended load result to _rd_.
+
+[#norm:Zilx_addr_width]#Effective addresses are computed using XLEN-bit
+two's-complement address arithmetic, and address arithmetic overflow is ignored.#
+
+[#norm:Zilx_unscaled_ea]#For an unscaled indexed load, the effective address is
+the low XLEN bits of _X[rs1]_ + _X[rs2]_.#
+
+[#norm:Zilx_scaled_ea]#For a scaled indexed load, the effective address is the
+low XLEN bits of _X[rs1]_ + (_X[rs2]_ << _log2(access-size)_), where
+_access-size_ is the number of bytes loaded by the instruction.#
+
+[#norm:Zilx_uw_index]#For an RV64 indexed load whose mnemonic ends in
+`.uw`, the index operand used in address formation is zero-extended from
+_X[rs2][31:0]_ to 64 bits before any scaling is applied.#
+
+[#norm:Zilx_rd_x0]#An ext:zilx[] load with _rd_=`x0` is executed as any
+other ext:zilx[] load, including effective-address formation, memory access,
+and exception checks, but the loaded value is discarded.#
+
+The following table lists the instruction classes defined by ext:zilx[].
+
+[%header,cols="^1,^1,4,5,5"]
+|===
+|RV32
+|RV64
+|Mnemonic pattern
+|Effective address
+|Loaded value
+
+|{check}
+|{check}
+|insn:lx*[_rd_,(_rs1_),_rs2_]
+|_X[rs1]_ + _X[rs2]_
+|sign- or zero-extended according to the mnemonic
+
+|
+|{check}
+|insn:lx*.uw[_rd_,(_rs1_),_rs2_]
+|_X[rs1]_ + _zext32(X[rs2])_
+|sign- or zero-extended according to the mnemonic
+
+|{check}
+|{check}
+|insn:lx*.s[_rd_,(_rs1_),_rs2_]
+|_X[rs1]_ + (_X[rs2]_ << _log2(access-size)_)
+|sign- or zero-extended according to the mnemonic
+
+|
+|{check}
+|insn:lx*.s.uw[_rd_,(_rs1_),_rs2_]
+|_X[rs1]_ + (_zext32(X[rs2])_ << _log2(access-size)_)
+|sign- or zero-extended according to the mnemonic
+
+|===
+
+There is no scaled byte-load form because scaling a byte index by the loaded
+data size would not change the index value.
+
+==== Load Semantics
+
+[#norm:Zilx_load_semantics]#Except for the effective-address calculation,
+each ext:zilx[] instruction behaves as the corresponding base integer load
+of the same access size and signedness.#
+
+[#norm:Zilx_sign_zero_extension]#Signed ext:zilx[] load forms sign-extend the
+loaded value to XLEN, and unsigned ext:zilx[] load forms zero-extend the
+loaded value to XLEN.#
+
+[#norm:Zilx_exceptions_ordering]#An ext:zilx[] instruction follows the same
+exception, address-alignment, access-fault, page-fault, PMP, PMA, privilege,
+atomicity, and memory-ordering rules as the corresponding base integer load
+executed at the same effective address.#
+
+==== Assembly Syntax
+
+The assembly syntax for ext:zilx[] instructions is:
+
+[source,asm]
+----
+mnemonic rd, (rs1), rs2
+----
+
+For example:
+
+[source,asm]
+----
+lxw      a0, (a1), a2
+lxw.s    a0, (a1), a2
+lxw.uw   a0, (a1), a2
+lxw.s.uw a0, (a1), a2
+----
+
+The `.uw` suffix affects only the interpretation of the index operand during
+effective-address formation; it does not affect whether the loaded memory
+value is sign-extended or zero-extended.
+
+==== Encodings
+
+ext:zilx[] instructions use the `LOAD` major opcode with _funct3_=`111`.
+
+[wavedrom, zilx-indexed-load-encoding, svg]
+....
+{reg: [
+  {bits:  7, name: 0x03,   attr: ['LOAD']},
+  {bits:  5, name: 'rd',   attr: ['dest']},
+  {bits:  3, name: 0x7,    attr: ['ZILX']},
+  {bits:  5, name: 'rs1',  attr: ['base']},
+  {bits:  5, name: 'rs2',  attr: ['index']},
+  {bits:  3, name: 'type'},
+  {bits:  1, name: 0},
+  {bits:  1, name: 'u'},
+  {bits:  2, name: 'width'},
+]}
+....
+
+[#norm:Zilx_common_encoding]#All ext:zilx[] instructions are encoded with
+the `LOAD` major opcode, _funct3_=`111`, and bit 28 equal to zero.#
+[#norm:Zilx_bit28_rsv]#Encodings in the ext:zilx[] encoding space with bit 28
+equal to one are reserved.#
+
+The _width_ field encodes the access size.
+
+[%header,cols="^2,^2,4"]
+|===
+|_width_
+|Access size
+|Load type
+
+|`00`
+|1 byte
+|byte
+
+|`01`
+|2 bytes
+|halfword
+
+|`10`
+|4 bytes
+|word
+
+|`11`
+|8 bytes
+|doubleword
+
+|===
+
+[#norm:Zilx_width_access_size]#The _width_ field selects the number of bytes
+loaded by the instruction; _width_=`11` is RV64-only.#
+
+The _u_ bit selects the extension applied to the loaded memory value.
+
+[%header,cols="^1,4"]
+|===
+|_u_
+|Load-result extension
+
+|`0`
+|sign-extend the loaded value to XLEN
+
+|`1`
+|zero-extend the loaded value to XLEN
+
+|===
+
+[#norm:Zilx_u_bit]#The _u_ bit selects whether the loaded memory value is
+sign-extended or zero-extended to XLEN.#
+
+The _type_ field selects the address-formation mode.
+
+[%header,cols="^2,5,4"]
+|===
+|_type_
+|Address-formation mode
+|Availability
+
+|`010`
+|unscaled indexed load
+|RV32 and RV64
+
+|`011`
+|unscaled indexed load with zero-extended 32-bit index
+|RV64 only
+
+|`100`
+|scaled indexed load
+|RV32 and RV64
+
+|`101`
+|scaled indexed load with zero-extended 32-bit index
+|RV64 only
+
+|===
+
+[#norm:Zilx_type_field]#The _type_ field values `010`, `011`, `100`, and
+`101` select the ext:zilx[] address-formation modes shown in the preceding
+table; all other _type_ field values are reserved.#
+
+[#norm:Zilx_scaled_byte_rsv]#The encodings with _type_=`100` or _type_=`101`
+and _width_=`00` are reserved.#
+
+[#norm:Zilx_rv32_rsv]#On RV32, encodings with _width_=`11`, with
+_type_=`011`, or with _type_=`101` are reserved.#
+
+[#norm:Zilx_lxwu_rv32_rsv]#On RV32, word-load encodings with _u_=`1` are
+reserved because a 32-bit unsigned load result is indistinguishable from a
+32-bit signed load result.#
+
+The following table maps valid field combinations to assembly mnemonics.
+
+[%header,cols="^1,^2,^1,^2,^2,4"]
+|===
+|RV32
+|RV64
+|_type_
+|_width_
+|_u_
+|Mnemonic
+
+|{check}
+|{check}
+|`010`
+|`00`
+|`0`
+|insn:lxb[rd,(rs1),rs2]
+
+|{check}
+|{check}
+|`010`
+|`00`
+|`1`
+|insn:lxbu[rd,(rs1),rs2]
+
+|{check}
+|{check}
+|`010`
+|`01`
+|`0`
+|insn:lxh[rd,(rs1),rs2]
+
+|{check}
+|{check}
+|`010`
+|`01`
+|`1`
+|insn:lxhu[rd,(rs1),rs2]
+
+|{check}
+|{check}
+|`010`
+|`10`
+|`0`
+|insn:lxw[rd,(rs1),rs2]
+
+|
+|{check}
+|`010`
+|`10`
+|`1`
+|insn:lxwu[rd,(rs1),rs2]
+
+|
+|{check}
+|`010`
+|`11`
+|`0`
+|insn:lxd[rd,(rs1),rs2]
+
+|
+|
+|`010`
+|`11`
+|`1`
+|reserved
+
+|
+|{check}
+|`011`
+|`00`
+|`0`
+|insn:lxb.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`011`
+|`00`
+|`1`
+|insn:lxbu.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`011`
+|`01`
+|`0`
+|insn:lxh.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`011`
+|`01`
+|`1`
+|insn:lxhu.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`011`
+|`10`
+|`0`
+|insn:lxw.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`011`
+|`10`
+|`1`
+|insn:lxwu.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`011`
+|`11`
+|`0`
+|insn:lxd.uw[rd,(rs1),rs2]
+
+|
+|
+|`011`
+|`11`
+|`1`
+|reserved
+
+|{check}
+|{check}
+|`100`
+|`01`
+|`0`
+|insn:lxh.s[rd,(rs1),rs2]
+
+|{check}
+|{check}
+|`100`
+|`01`
+|`1`
+|insn:lxhu.s[rd,(rs1),rs2]
+
+|{check}
+|{check}
+|`100`
+|`10`
+|`0`
+|insn:lxw.s[rd,(rs1),rs2]
+
+|
+|{check}
+|`100`
+|`10`
+|`1`
+|insn:lxwu.s[rd,(rs1),rs2]
+
+|
+|{check}
+|`100`
+|`11`
+|`0`
+|insn:lxd.s[rd,(rs1),rs2]
+
+|
+|
+|`100`
+|`11`
+|`1`
+|reserved
+
+|
+|{check}
+|`101`
+|`01`
+|`0`
+|insn:lxh.s.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`101`
+|`01`
+|`1`
+|insn:lxhu.s.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`101`
+|`10`
+|`0`
+|insn:lxw.s.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`101`
+|`10`
+|`1`
+|insn:lxwu.s.uw[rd,(rs1),rs2]
+
+|
+|{check}
+|`101`
+|`11`
+|`0`
+|insn:lxd.s.uw[rd,(rs1),rs2]
+
+|
+|
+|`101`
+|`11`
+|`1`
+|reserved
+
+|===
+
+[#norm:Zilx_lxdu_rsv]#Encodings that would select a zero-extended
+doubleword load result are reserved.#
+
+The following rules define the instruction-specific encoding fields.  Each
+instruction also uses the common ext:zilx[] encoding fields described above.
+
+[#norm:lxb_enc]#insn:lxb[] is encoded with _type_=`010`, _width_=`00`, and _u_=`0`.#
+[#norm:lxbu_enc]#insn:lxbu[] is encoded with _type_=`010`, _width_=`00`, and _u_=`1`.#
+[#norm:lxh_enc]#insn:lxh[] is encoded with _type_=`010`, _width_=`01`, and _u_=`0`.#
+[#norm:lxhu_enc]#insn:lxhu[] is encoded with _type_=`010`, _width_=`01`, and _u_=`1`.#
+[#norm:lxw_enc]#insn:lxw[] is encoded with _type_=`010`, _width_=`10`, and _u_=`0`.#
+[#norm:lxwu_enc]#insn:lxwu[] is an RV64-only instruction encoded with _type_=`010`, _width_=`10`, and _u_=`1`.#
+[#norm:lxd_enc]#insn:lxd[] is an RV64-only instruction encoded with _type_=`010`, _width_=`11`, and _u_=`0`.#
+
+[#norm:lxb-uw_enc]#insn:lxb.uw[] is an RV64-only instruction encoded with _type_=`011`, _width_=`00`, and _u_=`0`.#
+[#norm:lxbu-uw_enc]#insn:lxbu.uw[] is an RV64-only instruction encoded with _type_=`011`, _width_=`00`, and _u_=`1`.#
+[#norm:lxh-uw_enc]#insn:lxh.uw[] is an RV64-only instruction encoded with _type_=`011`, _width_=`01`, and _u_=`0`.#
+[#norm:lxhu-uw_enc]#insn:lxhu.uw[] is an RV64-only instruction encoded with _type_=`011`, _width_=`01`, and _u_=`1`.#
+[#norm:lxw-uw_enc]#insn:lxw.uw[] is an RV64-only instruction encoded with _type_=`011`, _width_=`10`, and _u_=`0`.#
+[#norm:lxwu-uw_enc]#insn:lxwu.uw[] is an RV64-only instruction encoded with _type_=`011`, _width_=`10`, and _u_=`1`.#
+[#norm:lxd-uw_enc]#insn:lxd.uw[] is an RV64-only instruction encoded with _type_=`011`, _width_=`11`, and _u_=`0`.#
+
+[#norm:lxh-s_enc]#insn:lxh.s[] is encoded with _type_=`100`, _width_=`01`, and _u_=`0`.#
+[#norm:lxhu-s_enc]#insn:lxhu.s[] is encoded with _type_=`100`, _width_=`01`, and _u_=`1`.#
+[#norm:lxw-s_enc]#insn:lxw.s[] is encoded with _type_=`100`, _width_=`10`, and _u_=`0`.#
+[#norm:lxwu-s_enc]#insn:lxwu.s[] is an RV64-only instruction encoded with _type_=`100`, _width_=`10`, and _u_=`1`.#
+[#norm:lxd-s_enc]#insn:lxd.s[] is an RV64-only instruction encoded with _type_=`100`, _width_=`11`, and _u_=`0`.#
+
+[#norm:lxh-s-uw_enc]#insn:lxh.s.uw[] is an RV64-only instruction encoded with _type_=`101`, _width_=`01`, and _u_=`0`.#
+[#norm:lxhu-s-uw_enc]#insn:lxhu.s.uw[] is an RV64-only instruction encoded with _type_=`101`, _width_=`01`, and _u_=`1`.#
+[#norm:lxw-s-uw_enc]#insn:lxw.s.uw[] is an RV64-only instruction encoded with _type_=`101`, _width_=`10`, and _u_=`0`.#
+[#norm:lxwu-s-uw_enc]#insn:lxwu.s.uw[] is an RV64-only instruction encoded with _type_=`101`, _width_=`10`, and _u_=`1`.#
+[#norm:lxd-s-uw_enc]#insn:lxd.s.uw[] is an RV64-only instruction encoded with _type_=`101`, _width_=`11`, and _u_=`0`.#
+
+==== Instructions
+
+[#insns-lxb,reftext="Load indexed byte"]
+===== insn:lxb[]
+
+Synopsis::
+Load indexed byte
+
+Mnemonic::
+lxb _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxb_op]#The effective address is _X[rs1]_ + _X[rs2]_.
+The byte at the effective address is loaded, sign-extended to XLEN, and
+written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxbu,reftext="Load indexed byte unsigned"]
+===== insn:lxbu[]
+
+Synopsis::
+Load indexed byte unsigned
+
+Mnemonic::
+lxbu _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxbu_op]#The effective address is _X[rs1]_ + _X[rs2]_.
+The byte at the effective address is loaded, zero-extended to XLEN, and
+written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxh,reftext="Load indexed halfword"]
+===== insn:lxh[]
+
+Synopsis::
+Load indexed halfword
+
+Mnemonic::
+lxh _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxh_op]#The effective address is _X[rs1]_ + _X[rs2]_.
+The halfword at the effective address is loaded, sign-extended to XLEN, and
+written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxhu,reftext="Load indexed halfword unsigned"]
+===== insn:lxhu[]
+
+Synopsis::
+Load indexed halfword unsigned
+
+Mnemonic::
+lxhu _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxhu_op]#The effective address is _X[rs1]_ + _X[rs2]_.
+The halfword at the effective address is loaded, zero-extended to XLEN, and
+written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxw,reftext="Load indexed word"]
+===== insn:lxw[]
+
+Synopsis::
+Load indexed word
+
+Mnemonic::
+lxw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxw_op]#The effective address is _X[rs1]_ + _X[rs2]_.
+The word at the effective address is loaded and written to _rd_; on RV64, the
+loaded word is sign-extended to 64 bits.#
+
+Included in: ext:zilx[]
+
+[#insns-lxwu,reftext="Load indexed word unsigned"]
+===== insn:lxwu[]
+
+Synopsis::
+Load indexed word unsigned
+
+Mnemonic::
+lxwu _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxwu_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _X[rs2]_. The word at the effective address is loaded,
+zero-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxd,reftext="Load indexed doubleword"]
+===== insn:lxd[]
+
+Synopsis::
+Load indexed doubleword
+
+Mnemonic::
+lxd _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxd_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _X[rs2]_. The doubleword at the effective address is loaded and
+written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxb_uw,reftext="Load indexed byte with unsigned word index"]
+===== insn:lxb.uw[]
+
+Synopsis::
+Load indexed byte with unsigned word index
+
+Mnemonic::
+lxb.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxb-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _zext32(X[rs2])_. The byte at the effective address is loaded,
+sign-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxbu_uw,reftext="Load indexed byte unsigned with unsigned word index"]
+===== insn:lxbu.uw[]
+
+Synopsis::
+Load indexed byte unsigned with unsigned word index
+
+Mnemonic::
+lxbu.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxbu-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _zext32(X[rs2])_. The byte at the effective address is loaded,
+zero-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxh_uw,reftext="Load indexed halfword with unsigned word index"]
+===== insn:lxh.uw[]
+
+Synopsis::
+Load indexed halfword with unsigned word index
+
+Mnemonic::
+lxh.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxh-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _zext32(X[rs2])_. The halfword at the effective address is
+loaded, sign-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxhu_uw,reftext="Load indexed halfword unsigned with unsigned word index"]
+===== insn:lxhu.uw[]
+
+Synopsis::
+Load indexed halfword unsigned with unsigned word index
+
+Mnemonic::
+lxhu.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxhu-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _zext32(X[rs2])_. The halfword at the effective address is
+loaded, zero-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxw_uw,reftext="Load indexed word with unsigned word index"]
+===== insn:lxw.uw[]
+
+Synopsis::
+Load indexed word with unsigned word index
+
+Mnemonic::
+lxw.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxw-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _zext32(X[rs2])_. The word at the effective address is loaded,
+sign-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxwu_uw,reftext="Load indexed word unsigned with unsigned word index"]
+===== insn:lxwu.uw[]
+
+Synopsis::
+Load indexed word unsigned with unsigned word index
+
+Mnemonic::
+lxwu.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxwu-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _zext32(X[rs2])_. The word at the effective address is loaded,
+zero-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxd_uw,reftext="Load indexed doubleword with unsigned word index"]
+===== insn:lxd.uw[]
+
+Synopsis::
+Load indexed doubleword with unsigned word index
+
+Mnemonic::
+lxd.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxd-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + _zext32(X[rs2])_. The doubleword at the effective address is
+loaded and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxh_s,reftext="Load scaled indexed halfword"]
+===== insn:lxh.s[]
+
+Synopsis::
+Load scaled indexed halfword
+
+Mnemonic::
+lxh.s _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxh-s_op]#The effective address is _X[rs1]_ + (_X[rs2]_ << 1).
+The halfword at the effective address is loaded, sign-extended to XLEN, and
+written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxhu_s,reftext="Load scaled indexed halfword unsigned"]
+===== insn:lxhu.s[]
+
+Synopsis::
+Load scaled indexed halfword unsigned
+
+Mnemonic::
+lxhu.s _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxhu-s_op]#The effective address is _X[rs1]_ + (_X[rs2]_ << 1).
+The halfword at the effective address is loaded, zero-extended to XLEN, and
+written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxw_s,reftext="Load scaled indexed word"]
+===== insn:lxw.s[]
+
+Synopsis::
+Load scaled indexed word
+
+Mnemonic::
+lxw.s _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxw-s_op]#The effective address is _X[rs1]_ + (_X[rs2]_ << 2).
+The word at the effective address is loaded and written to _rd_; on RV64, the
+loaded word is sign-extended to 64 bits.#
+
+Included in: ext:zilx[]
+
+[#insns-lxwu_s,reftext="Load scaled indexed word unsigned"]
+===== insn:lxwu.s[]
+
+Synopsis::
+Load scaled indexed word unsigned
+
+Mnemonic::
+lxwu.s _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxwu-s_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + (_X[rs2]_ << 2). The word at the effective address is loaded,
+zero-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxd_s,reftext="Load scaled indexed doubleword"]
+===== insn:lxd.s[]
+
+Synopsis::
+Load scaled indexed doubleword
+
+Mnemonic::
+lxd.s _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxd-s_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + (_X[rs2]_ << 3). The doubleword at the effective address is
+loaded and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxh_s_uw,reftext="Load scaled indexed halfword with unsigned word index"]
+===== insn:lxh.s.uw[]
+
+Synopsis::
+Load scaled indexed halfword with unsigned word index
+
+Mnemonic::
+lxh.s.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxh-s-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + (_zext32(X[rs2])_ << 1). The halfword at the effective address
+is loaded, sign-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxhu_s_uw,reftext="Load scaled indexed halfword unsigned with unsigned word index"]
+===== insn:lxhu.s.uw[]
+
+Synopsis::
+Load scaled indexed halfword unsigned with unsigned word index
+
+Mnemonic::
+lxhu.s.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxhu-s-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + (_zext32(X[rs2])_ << 1). The halfword at the effective address
+is loaded, zero-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxw_s_uw,reftext="Load scaled indexed word with unsigned word index"]
+===== insn:lxw.s.uw[]
+
+Synopsis::
+Load scaled indexed word with unsigned word index
+
+Mnemonic::
+lxw.s.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxw-s-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + (_zext32(X[rs2])_ << 2). The word at the effective address is
+loaded, sign-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxwu_s_uw,reftext="Load scaled indexed word unsigned with unsigned word index"]
+===== insn:lxwu.s.uw[]
+
+Synopsis::
+Load scaled indexed word unsigned with unsigned word index
+
+Mnemonic::
+lxwu.s.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxwu-s-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + (_zext32(X[rs2])_ << 2). The word at the effective address is
+loaded, zero-extended to 64 bits, and written to _rd_.#
+
+Included in: ext:zilx[]
+
+[#insns-lxd_s_uw,reftext="Load scaled indexed doubleword with unsigned word index"]
+===== insn:lxd.s.uw[]
+
+Synopsis::
+Load scaled indexed doubleword with unsigned word index
+
+Mnemonic::
+lxd.s.uw _rd_, (_rs1_), _rs2_
+
+Description::
+[#norm:lxd-s-uw_op]#This RV64-only instruction computes the effective address
+as _X[rs1]_ + (_zext32(X[rs2])_ << 3). The doubleword at the effective address
+is loaded and written to _rd_.#
+
+Included in: ext:zilx[]
+
+//
