@@ -97,16 +97,18 @@ The assembly syntax for ext:zilx[] instructions is:
 
 [source,asm]
 ----
-mnemonic rd, rs1, rs2
+mnemonic rd, (rs2), rs1
 ----
 
-where _rs1_ is the index operand and _rs2_ is the base operand. For example:
+where _rs2_, written in parentheses, is the base register and _rs1_ is the
+index register. Writing the base register in parentheses distinguishes the
+base address from the index. For example:
 
 [source,asm]
 ----
-lxw    a0, a2, a1   // a0 = mem[ X[a1] + X[a2] ]
-lxsw   a0, a2, a1   // a0 = mem[ X[a1] + (X[a2] << 2) ]
-lxsuwd a0, a2, a1   // RV64: a0 = mem[ X[a1] + (zext32(X[a2]) << 3) ]
+lxw    a0, (a1), a2   // a0 = mem[ X[a1] + X[a2] ]
+lxsw   a0, (a1), a2   // a0 = mem[ X[a1] + (X[a2] << 2) ]
+lxsuwd a0, (a1), a2   // RV64: a0 = mem[ X[a1] + (zext32(X[a2]) << 3) ]
 ----
 
 ==== Encodings
@@ -222,103 +224,103 @@ The following table maps valid field combinations to assembly mnemonics.
 |{check}
 |`10010`
 |`001`
-|lxh _rd_, _rs1_, _rs2_
+|lxh _rd_, (_rs2_), _rs1_
 
 |{check}
 |{check}
 |`10010`
 |`010`
-|lxw _rd_, _rs1_, _rs2_
+|lxw _rd_, (_rs2_), _rs1_
 |
 |{check}
 |`10010`
 |`011`
-|lxd _rd_, _rs1_, _rs2_
+|lxd _rd_, (_rs2_), _rs1_
 |{check}
 |{check}
 |`10010`
 |`101`
-|lxhu _rd_, _rs1_, _rs2_
+|lxhu _rd_, (_rs2_), _rs1_
 |
 |{check}
 |`10010`
 |`110`
-|lxwu _rd_, _rs1_, _rs2_
+|lxwu _rd_, (_rs2_), _rs1_
 |{check}
 |{check}
 |`11010`
 |`000`
-|lxsb _rd_, _rs1_, _rs2_
+|lxsb _rd_, (_rs2_), _rs1_
 |{check}
 |{check}
 |`11010`
 |`001`
-|lxsh _rd_, _rs1_, _rs2_
+|lxsh _rd_, (_rs2_), _rs1_
 |{check}
 |{check}
 |`11010`
 |`010`
-|lxsw _rd_, _rs1_, _rs2_
+|lxsw _rd_, (_rs2_), _rs1_
 |
 |{check}
 |`11010`
 |`011`
-|lxsd _rd_, _rs1_, _rs2_
+|lxsd _rd_, (_rs2_), _rs1_
 |{check}
 |{check}
 |`11010`
 |`100`
-|lxsbu _rd_, _rs1_, _rs2_
+|lxsbu _rd_, (_rs2_), _rs1_
 |{check}
 |{check}
 |`11010`
 |`101`
-|lxshu _rd_, _rs1_, _rs2_
+|lxshu _rd_, (_rs2_), _rs1_
 |
 |{check}
 |`11010`
 |`110`
-|lxswu _rd_, _rs1_, _rs2_
+|lxswu _rd_, (_rs2_), _rs1_
 
 |
 |{check}
 |`11110`
 |`000`
-|lxsuwb _rd_, _rs1_, _rs2_
+|lxsuwb _rd_, (_rs2_), _rs1_
 |
 |{check}
 |`11110`
 |`001`
-|lxsuwh _rd_, _rs1_, _rs2_
+|lxsuwh _rd_, (_rs2_), _rs1_
 
 |
 |{check}
 |`11110`
 |`010`
-|lxsuww _rd_, _rs1_, _rs2_
+|lxsuww _rd_, (_rs2_), _rs1_
 |
 |{check}
 |`11110`
 |`011`
-|lxsuwd _rd_, _rs1_, _rs2_
+|lxsuwd _rd_, (_rs2_), _rs1_
 
 |
 |{check}
 |`11110`
 |`100`
-|lxsuwbu _rd_, _rs1_, _rs2_
+|lxsuwbu _rd_, (_rs2_), _rs1_
 
 |
 |{check}
 |`11110`
 |`101`
-|lxsuwhu _rd_, _rs1_, _rs2_
+|lxsuwhu _rd_, (_rs2_), _rs1_
 
 |
 |{check}
 |`11110`
 |`110`
-|lxsuwwu _rd_, _rs1_, _rs2_
+|lxsuwwu _rd_, (_rs2_), _rs1_
 |===
 
 ==== Instructions
@@ -330,7 +332,7 @@ Synopsis::
 Load indexed halfword
 
 Mnemonic::
-lxh _rd_, _rs1_, _rs2_
+lxh _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxh_op]#The effective address is _X[rs2]_ + _X[rs1]_.
@@ -349,7 +351,7 @@ Synopsis::
 Load indexed word
 
 Mnemonic::
-lxw _rd_, _rs1_, _rs2_
+lxw _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxw_op]#The effective address is _X[rs2]_ + _X[rs1]_.
@@ -368,7 +370,7 @@ Synopsis::
 Load indexed doubleword
 
 Mnemonic::
-lxd _rd_, _rs1_, _rs2_
+lxd _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxd_op]#This RV64-only instruction computes the effective address
@@ -387,7 +389,7 @@ Synopsis::
 Load indexed halfword unsigned
 
 Mnemonic::
-lxhu _rd_, _rs1_, _rs2_
+lxhu _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxhu_op]#The effective address is _X[rs2]_ + _X[rs1]_.
@@ -406,7 +408,7 @@ Synopsis::
 Load indexed word unsigned
 
 Mnemonic::
-lxwu _rd_, _rs1_, _rs2_
+lxwu _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxwu_op]#This RV64-only instruction computes the effective address
@@ -425,7 +427,7 @@ Synopsis::
 Load scaled indexed byte
 
 Mnemonic::
-lxsb _rd_, _rs1_, _rs2_
+lxsb _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsb_op]#The effective address is _X[rs2]_ + _X[rs1]_.
@@ -446,7 +448,7 @@ Synopsis::
 Load scaled indexed halfword
 
 Mnemonic::
-lxsh _rd_, _rs1_, _rs2_
+lxsh _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsh_op]#The effective address is _X[rs2]_ + (_X[rs1]_ << 1).
@@ -465,7 +467,7 @@ Synopsis::
 Load scaled indexed word
 
 Mnemonic::
-lxsw _rd_, _rs1_, _rs2_
+lxsw _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsw_op]#The effective address is _X[rs2]_ + (_X[rs1]_ << 2).
@@ -484,7 +486,7 @@ Synopsis::
 Load scaled indexed doubleword
 
 Mnemonic::
-lxsd _rd_, _rs1_, _rs2_
+lxsd _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsd_op]#This RV64-only instruction computes the effective address
@@ -503,7 +505,7 @@ Synopsis::
 Load scaled indexed byte unsigned
 
 Mnemonic::
-lxsbu _rd_, _rs1_, _rs2_
+lxsbu _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsbu_op]#The effective address is _X[rs2]_ + _X[rs1]_.
@@ -524,7 +526,7 @@ Synopsis::
 Load scaled indexed halfword unsigned
 
 Mnemonic::
-lxshu _rd_, _rs1_, _rs2_
+lxshu _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxshu_op]#The effective address is _X[rs2]_ + (_X[rs1]_ << 1).
@@ -543,7 +545,7 @@ Synopsis::
 Load scaled indexed word unsigned
 
 Mnemonic::
-lxswu _rd_, _rs1_, _rs2_
+lxswu _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxswu_op]#This RV64-only instruction computes the effective address
@@ -562,7 +564,7 @@ Synopsis::
 Load scaled indexed byte with unsigned word index
 
 Mnemonic::
-lxsuwb _rd_, _rs1_, _rs2_
+lxsuwb _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsuwb_op]#This RV64-only instruction computes the effective address
@@ -582,7 +584,7 @@ Synopsis::
 Load scaled indexed halfword with unsigned word index
 
 Mnemonic::
-lxsuwh _rd_, _rs1_, _rs2_
+lxsuwh _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsuwh_op]#This RV64-only instruction computes the effective address
@@ -602,7 +604,7 @@ Synopsis::
 Load scaled indexed word with unsigned word index
 
 Mnemonic::
-lxsuww _rd_, _rs1_, _rs2_
+lxsuww _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsuww_op]#This RV64-only instruction computes the effective address
@@ -622,7 +624,7 @@ Synopsis::
 Load scaled indexed doubleword with unsigned word index
 
 Mnemonic::
-lxsuwd _rd_, _rs1_, _rs2_
+lxsuwd _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsuwd_op]#This RV64-only instruction computes the effective address
@@ -642,7 +644,7 @@ Synopsis::
 Load scaled indexed byte unsigned with unsigned word index
 
 Mnemonic::
-lxsuwbu _rd_, _rs1_, _rs2_
+lxsuwbu _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsuwbu_op]#This RV64-only instruction computes the effective address
@@ -662,7 +664,7 @@ Synopsis::
 Load scaled indexed halfword unsigned with unsigned word index
 
 Mnemonic::
-lxsuwhu _rd_, _rs1_, _rs2_
+lxsuwhu _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsuwhu_op]#This RV64-only instruction computes the effective address
@@ -682,7 +684,7 @@ Synopsis::
 Load scaled indexed word unsigned with unsigned word index
 
 Mnemonic::
-lxsuwwu _rd_, _rs1_, _rs2_
+lxsuwwu _rd_, (_rs2_), _rs1_
 
 Description::
 [#norm:lxsuwwu_op]#This RV64-only instruction computes the effective address
