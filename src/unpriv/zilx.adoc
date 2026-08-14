@@ -575,6 +575,8 @@ sign-extended to 64 bits, and written to _rd_.#
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`000`,
 _aq_=`0`, and _rl_=`0`.#
 
+The `lxuwb` mnemonic is an assembler pseudoinstruction for insn:lxsuwb[].
+
 Included in: ext:zilx[]
 
 [#insns-lxsuwh,reftext="Load scaled indexed halfword with unsigned word index"]
@@ -654,6 +656,8 @@ zero-extended to 64 bits, and written to _rd_.#
 [#norm:lxsuwbu_enc]#`lxsuwbu` is an RV64-only instruction encoded in the
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`100`,
 _aq_=`0`, and _rl_=`0`.#
+
+The `lxuwbu` mnemonic is an assembler pseudoinstruction for insn:lxsuwbu[].
 
 Included in: ext:zilx[]
 
