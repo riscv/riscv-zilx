@@ -216,7 +216,7 @@ All _funct5_ values other than `10010`, `11010`, and
 In all ext:zilx[] addressing modes, _funct3_=`111` is
 reserved.
 
-[[norm:Zilx_no_unscaled_byte]]
+[[norm:Zilx_unscaled_byte_rsv]]
 In the unscaled mode (_funct5_=`10010`),
 _funct3_=`000` (signed byte) and _funct3_=`100` (unsigned byte) are reserved,
 because byte loads are provided only in the scaled modes.
