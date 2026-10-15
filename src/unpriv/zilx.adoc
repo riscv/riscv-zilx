@@ -8,8 +8,9 @@ On RV64, the extension also defines scaled loads that zero-extend the low
 32 bits of the index register before scaling and forming the effective
 address.
 
-[#norm:Zilx_no_new_state]#The ext:zilx[] extension adds no architectural
-state, CSRs, or memory-ordering rules.#
+[[norm:Zilx_no_new_state]]
+The ext:zilx[] extension adds no architectural
+state, CSRs, or memory-ordering rules.
 
 ==== Indexed Load Classes
 
@@ -20,23 +21,28 @@ extended load result to _rd_.# The operand roles match the shift-add
 instructions of the ext:zba[] extension, in which the shifted operand is
 _rs1_ and the added base is _rs2_.
 
-[#norm:Zilx_addr_width]#Effective addresses are computed using XLEN-bit
-two's-complement address arithmetic, and address arithmetic overflow is ignored.#
+[[norm:Zilx_addr_width]]
+Effective addresses are computed using XLEN-bit
+two's-complement address arithmetic, and address arithmetic overflow is ignored.
 
-[#norm:Zilx_unscaled_ea]#For an unscaled indexed load, the effective address is
-the low XLEN bits of _X[rs2]_ + _X[rs1]_.#
+[[norm:Zilx_unscaled_ea]]
+For an unscaled indexed load, the effective address is
+the low XLEN bits of _X[rs2]_ + _X[rs1]_.
 
-[#norm:Zilx_scaled_ea]#For a scaled indexed load, the effective address is the
+[[norm:Zilx_scaled_ea]]
+For a scaled indexed load, the effective address is the
 low XLEN bits of _X[rs2]_ + (_X[rs1]_ << _log2(access-size)_), where
-_access-size_ is the number of bytes loaded by the instruction.#
+_access-size_ is the number of bytes loaded by the instruction.
 
-[#norm:Zilx_uw_index]#For a scaled unsigned-word-index load, whose mnemonic
+[[norm:Zilx_uw_index]]
+For a scaled unsigned-word-index load, whose mnemonic
 begins with `lxsuw`, the index operand is zero-extended from _X[rs1][31:0]_ to
-64 bits before scaling; these instructions are defined only for RV64.#
+64 bits before scaling; these instructions are defined only for RV64.
 
-[#norm:Zilx_rd_x0]#A ext:zilx[] load with _rd_=`x0` performs
+[[norm:Zilx_rd_x0]]
+A ext:zilx[] load with _rd_=`x0` performs
 effective-address formation, the memory access, and all associated exception
-checks, but discards the loaded value.#
+checks, but discards the loaded value.
 
 [NOTE]
 ====
@@ -78,18 +84,21 @@ _X[rs2]_.
 
 ==== Load Semantics
 
-[#norm:Zilx_load_semantics]#Except for the effective-address calculation,
+[[norm:Zilx_load_semantics]]
+Except for the effective-address calculation,
 each ext:zilx[] instruction behaves as the corresponding base integer load
-of the same access size and signedness.#
+of the same access size and signedness.
 
-[#norm:Zilx_sign_zero_extension]#Signed ext:zilx[] load forms sign-extend the
+[[norm:Zilx_sign_zero_extension]]
+Signed ext:zilx[] load forms sign-extend the
 loaded value to XLEN, and unsigned ext:zilx[] load forms zero-extend the
-loaded value to XLEN.#
+loaded value to XLEN.
 
-[#norm:Zilx_exceptions_ordering]#A ext:zilx[] instruction follows the same
+[[norm:Zilx_exceptions_ordering]]
+A ext:zilx[] instruction follows the same
 exception, address-alignment, access-fault, page-fault, PMP, PMA, privilege,
 atomicity, and memory-ordering rules as the corresponding base integer load
-executed at the same effective address.#
+executed at the same effective address.
 
 ==== Assembly Syntax
 
@@ -113,10 +122,11 @@ lxsuwd a0, (a1), a2   // RV64: a0 = mem[ X[a1] + (zext32(X[a2]) << 3) ]
 
 ==== Encodings
 
-[#norm:Zilx_common_encoding]#ext:zilx[] instructions use the `AMO` major
+[[norm:Zilx_common_encoding]]
+ext:zilx[] instructions use the `AMO` major
 opcode. The access width and signedness are encoded in _funct3_ using the same
 encoding as base integer loads, and the addressing mode is encoded in
-_funct5_.#
+_funct5_.
 
 [wavedrom, zilx-indexed-load-encoding, svg]
 ....
@@ -132,8 +142,9 @@ _funct5_.#
 ]}
 ....
 
-[#norm:Zilx_aqrl_zero]#For all ext:zilx[] instructions the _aq_ and _rl_ bits
-must be 0; encodings with _aq_ or _rl_ set are reserved.#
+[[norm:Zilx_aqrl_zero]]
+For all ext:zilx[] instructions the _aq_ and _rl_ bits
+must be 0; encodings with _aq_ or _rl_ set are reserved.
 
 The _funct3_ field encodes the access width and signedness, reusing the base
 integer load encoding.
@@ -192,23 +203,28 @@ _inst[28:27]_ is `10`, matching the load-reserved and load-acquire encodings.
 
 |===
 
-[#norm:Zilx_mode_encoding]#The addressing mode is selected by _funct5_:
+[[norm:Zilx_mode_encoding]]
+The addressing mode is selected by _funct5_:
 `10010` selects the unscaled mode, `11010` selects the scaled mode, and `11110`
-selects the scaled unsigned-word-index mode.#
+selects the scaled unsigned-word-index mode.
 
-[#norm:Zilx_mode_rsv]#All _funct5_ values other than `10010`, `11010`, and
-`11110` are reserved within the ext:zilx[] encoding space.#
+[[norm:Zilx_mode_rsv]]
+All _funct5_ values other than `10010`, `11010`, and
+`11110` are reserved within the ext:zilx[] encoding space.
 
-[#norm:Zilx_funct3_rsv]#In all ext:zilx[] addressing modes, _funct3_=`111` is
-reserved.#
+[[norm:Zilx_funct3_rsv]]
+In all ext:zilx[] addressing modes, _funct3_=`111` is
+reserved.
 
-[#norm:Zilx_no_unscaled_byte]#In the unscaled mode (_funct5_=`10010`),
+[[norm:Zilx_no_unscaled_byte]]
+In the unscaled mode (_funct5_=`10010`),
 _funct3_=`000` (signed byte) and _funct3_=`100` (unsigned byte) are reserved,
-because byte loads are provided only in the scaled modes.#
+because byte loads are provided only in the scaled modes.
 
-[#norm:Zilx_rv32_rsv]#On RV32, all encodings with _funct3_=`011` (doubleword)
+[[norm:Zilx_rv32_rsv]]
+On RV32, all encodings with _funct3_=`011` (doubleword)
 or _funct3_=`110` (unsigned word), and all encodings in the scaled
-unsigned-word-index mode (_funct5_=`11110`), are reserved.#
+unsigned-word-index mode (_funct5_=`11110`), are reserved.
 
 The following table maps valid field combinations to assembly mnemonics.
 
@@ -335,12 +351,14 @@ Mnemonic::
 lxh _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxh_op]#The effective address is _X[rs2]_ + _X[rs1]_.
+[[norm:lxh_op]]
+The insn:lxh[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
 The halfword at the effective address is loaded, sign-extended to XLEN, and
-written to _rd_.#
+written to _rd_.
 
-[#norm:lxh_enc]#`lxh` is encoded in the unscaled mode with
-_funct5_=`10010`, _funct3_=`001`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxh_enc]]
+insn:lxh[] is encoded in the unscaled mode with
+_funct5_=`10010`, _funct3_=`001`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -354,12 +372,14 @@ Mnemonic::
 lxw _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxw_op]#The effective address is _X[rs2]_ + _X[rs1]_.
+[[norm:lxw_op]]
+The insn:lxw[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
 The word at the effective address is loaded and written to _rd_; on RV64, the
-loaded word is sign-extended to 64 bits.#
+loaded word is sign-extended to 64 bits.
 
-[#norm:lxw_enc]#`lxw` is encoded in the unscaled mode with
-_funct5_=`10010`, _funct3_=`010`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxw_enc]]
+insn:lxw[] is encoded in the unscaled mode with
+_funct5_=`10010`, _funct3_=`010`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -373,12 +393,14 @@ Mnemonic::
 lxd _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxd_op]#This RV64-only instruction computes the effective address
+[[norm:lxd_op]]
+The insn:lxd[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + _X[rs1]_. The doubleword at the effective address is loaded and
-written to _rd_.#
+written to _rd_.
 
-[#norm:lxd_enc]#`lxd` is an RV64-only instruction encoded in the unscaled
-mode with _funct5_=`10010`, _funct3_=`011`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxd_enc]]
+insn:lxd[] is an RV64-only instruction encoded in the unscaled
+mode with _funct5_=`10010`, _funct3_=`011`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -392,12 +414,14 @@ Mnemonic::
 lxhu _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxhu_op]#The effective address is _X[rs2]_ + _X[rs1]_.
+[[norm:lxhu_op]]
+The insn:lxhu[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
 The halfword at the effective address is loaded, zero-extended to XLEN, and
-written to _rd_.#
+written to _rd_.
 
-[#norm:lxhu_enc]#`lxhu` is encoded in the unscaled mode with
-_funct5_=`10010`, _funct3_=`101`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxhu_enc]]
+insn:lxhu[] is encoded in the unscaled mode with
+_funct5_=`10010`, _funct3_=`101`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -411,12 +435,14 @@ Mnemonic::
 lxwu _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxwu_op]#This RV64-only instruction computes the effective address
+[[norm:lxwu_op]]
+The insn:lxwu[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + _X[rs1]_. The word at the effective address is loaded,
-zero-extended to 64 bits, and written to _rd_.#
+zero-extended to 64 bits, and written to _rd_.
 
-[#norm:lxwu_enc]#`lxwu` is an RV64-only instruction encoded in the
-unscaled mode with _funct5_=`10010`, _funct3_=`110`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxwu_enc]]
+insn:lxwu[] is an RV64-only instruction encoded in the
+unscaled mode with _funct5_=`10010`, _funct3_=`110`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -430,12 +456,14 @@ Mnemonic::
 lxsb _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsb_op]#The effective address is _X[rs2]_ + _X[rs1]_.
+[[norm:lxsb_op]]
+The insn:lxsb[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
 The byte at the effective address is loaded, sign-extended to XLEN, and
-written to _rd_.#
+written to _rd_.
 
-[#norm:lxsb_enc]#`lxsb` is encoded in the scaled mode with
-_funct5_=`11010`, _funct3_=`000`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxsb_enc]]
+insn:lxsb[] is encoded in the scaled mode with
+_funct5_=`11010`, _funct3_=`000`, _aq_=`0`, and _rl_=`0`.
 
 The `lxb` mnemonic is an assembler pseudoinstruction for insn:lxsb[].
 
@@ -451,12 +479,14 @@ Mnemonic::
 lxsh _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsh_op]#The effective address is _X[rs2]_ + (_X[rs1]_ << 1).
+[[norm:lxsh_op]]
+The insn:lxsh[] instruction computes the effective address as _X[rs2]_ + (_X[rs1]_ << 1).
 The halfword at the effective address is loaded, sign-extended to XLEN, and
-written to _rd_.#
+written to _rd_.
 
-[#norm:lxsh_enc]#`lxsh` is encoded in the scaled mode with
-_funct5_=`11010`, _funct3_=`001`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxsh_enc]]
+insn:lxsh[] is encoded in the scaled mode with
+_funct5_=`11010`, _funct3_=`001`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -470,12 +500,14 @@ Mnemonic::
 lxsw _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsw_op]#The effective address is _X[rs2]_ + (_X[rs1]_ << 2).
+[[norm:lxsw_op]]
+The insn:lxsw[] instruction computes the effective address as _X[rs2]_ + (_X[rs1]_ << 2).
 The word at the effective address is loaded and written to _rd_; on RV64, the
-loaded word is sign-extended to 64 bits.#
+loaded word is sign-extended to 64 bits.
 
-[#norm:lxsw_enc]#`lxsw` is encoded in the scaled mode with
-_funct5_=`11010`, _funct3_=`010`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxsw_enc]]
+insn:lxsw[] is encoded in the scaled mode with
+_funct5_=`11010`, _funct3_=`010`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -489,12 +521,14 @@ Mnemonic::
 lxsd _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsd_op]#This RV64-only instruction computes the effective address
+[[norm:lxsd_op]]
+The insn:lxsd[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + (_X[rs1]_ << 3). The doubleword at the effective address is
-loaded and written to _rd_.#
+loaded and written to _rd_.
 
-[#norm:lxsd_enc]#`lxsd` is an RV64-only instruction encoded in the scaled
-mode with _funct5_=`11010`, _funct3_=`011`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxsd_enc]]
+insn:lxsd[] is an RV64-only instruction encoded in the scaled
+mode with _funct5_=`11010`, _funct3_=`011`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -508,12 +542,14 @@ Mnemonic::
 lxsbu _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsbu_op]#The effective address is _X[rs2]_ + _X[rs1]_.
+[[norm:lxsbu_op]]
+The insn:lxsbu[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
 The byte at the effective address is loaded, zero-extended to XLEN, and
-written to _rd_.#
+written to _rd_.
 
-[#norm:lxsbu_enc]#`lxsbu` is encoded in the scaled mode with
-_funct5_=`11010`, _funct3_=`100`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxsbu_enc]]
+insn:lxsbu[] is encoded in the scaled mode with
+_funct5_=`11010`, _funct3_=`100`, _aq_=`0`, and _rl_=`0`.
 
 The `lxbu` mnemonic is an assembler pseudoinstruction for insn:lxsbu[].
 
@@ -529,12 +565,14 @@ Mnemonic::
 lxshu _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxshu_op]#The effective address is _X[rs2]_ + (_X[rs1]_ << 1).
+[[norm:lxshu_op]]
+The insn:lxshu[] instruction computes the effective address as _X[rs2]_ + (_X[rs1]_ << 1).
 The halfword at the effective address is loaded, zero-extended to XLEN, and
-written to _rd_.#
+written to _rd_.
 
-[#norm:lxshu_enc]#`lxshu` is encoded in the scaled mode with
-_funct5_=`11010`, _funct3_=`101`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxshu_enc]]
+insn:lxshu[] is encoded in the scaled mode with
+_funct5_=`11010`, _funct3_=`101`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -548,12 +586,14 @@ Mnemonic::
 lxswu _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxswu_op]#This RV64-only instruction computes the effective address
+[[norm:lxswu_op]]
+The insn:lxswu[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + (_X[rs1]_ << 2). The word at the effective address is loaded,
-zero-extended to 64 bits, and written to _rd_.#
+zero-extended to 64 bits, and written to _rd_.
 
-[#norm:lxswu_enc]#`lxswu` is an RV64-only instruction encoded in the
-scaled mode with _funct5_=`11010`, _funct3_=`110`, _aq_=`0`, and _rl_=`0`.#
+[[norm:lxswu_enc]]
+insn:lxswu[] is an RV64-only instruction encoded in the
+scaled mode with _funct5_=`11010`, _funct3_=`110`, _aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -567,13 +607,15 @@ Mnemonic::
 lxsuwb _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsuwb_op]#This RV64-only instruction computes the effective address
+[[norm:lxsuwb_op]]
+The insn:lxsuwb[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + _zext32(X[rs1])_. The byte at the effective address is loaded,
-sign-extended to 64 bits, and written to _rd_.#
+sign-extended to 64 bits, and written to _rd_.
 
-[#norm:lxsuwb_enc]#`lxsuwb` is an RV64-only instruction encoded in the
+[[norm:lxsuwb_enc]]
+insn:lxsuwb[] is an RV64-only instruction encoded in the
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`000`,
-_aq_=`0`, and _rl_=`0`.#
+_aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -587,13 +629,15 @@ Mnemonic::
 lxsuwh _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsuwh_op]#This RV64-only instruction computes the effective address
+[[norm:lxsuwh_op]]
+The insn:lxsuwh[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + (_zext32(X[rs1])_ << 1). The halfword at the effective address
-is loaded, sign-extended to 64 bits, and written to _rd_.#
+is loaded, sign-extended to 64 bits, and written to _rd_.
 
-[#norm:lxsuwh_enc]#`lxsuwh` is an RV64-only instruction encoded in the
+[[norm:lxsuwh_enc]]
+insn:lxsuwh[] is an RV64-only instruction encoded in the
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`001`,
-_aq_=`0`, and _rl_=`0`.#
+_aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -607,13 +651,15 @@ Mnemonic::
 lxsuww _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsuww_op]#This RV64-only instruction computes the effective address
+[[norm:lxsuww_op]]
+The insn:lxsuww[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + (_zext32(X[rs1])_ << 2). The word at the effective address is
-loaded, sign-extended to 64 bits, and written to _rd_.#
+loaded, sign-extended to 64 bits, and written to _rd_.
 
-[#norm:lxsuww_enc]#`lxsuww` is an RV64-only instruction encoded in the
+[[norm:lxsuww_enc]]
+insn:lxsuww[] is an RV64-only instruction encoded in the
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`010`,
-_aq_=`0`, and _rl_=`0`.#
+_aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -627,13 +673,15 @@ Mnemonic::
 lxsuwd _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsuwd_op]#This RV64-only instruction computes the effective address
+[[norm:lxsuwd_op]]
+The insn:lxsuwd[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + (_zext32(X[rs1])_ << 3). The doubleword at the effective address
-is loaded and written to _rd_.#
+is loaded and written to _rd_.
 
-[#norm:lxsuwd_enc]#`lxsuwd` is an RV64-only instruction encoded in the
+[[norm:lxsuwd_enc]]
+insn:lxsuwd[] is an RV64-only instruction encoded in the
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`011`,
-_aq_=`0`, and _rl_=`0`.#
+_aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -647,13 +695,15 @@ Mnemonic::
 lxsuwbu _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsuwbu_op]#This RV64-only instruction computes the effective address
+[[norm:lxsuwbu_op]]
+The insn:lxsuwbu[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + _zext32(X[rs1])_. The byte at the effective address is loaded,
-zero-extended to 64 bits, and written to _rd_.#
+zero-extended to 64 bits, and written to _rd_.
 
-[#norm:lxsuwbu_enc]#`lxsuwbu` is an RV64-only instruction encoded in the
+[[norm:lxsuwbu_enc]]
+insn:lxsuwbu[] is an RV64-only instruction encoded in the
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`100`,
-_aq_=`0`, and _rl_=`0`.#
+_aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -667,13 +717,15 @@ Mnemonic::
 lxsuwhu _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsuwhu_op]#This RV64-only instruction computes the effective address
+[[norm:lxsuwhu_op]]
+The insn:lxsuwhu[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + (_zext32(X[rs1])_ << 1). The halfword at the effective address
-is loaded, zero-extended to 64 bits, and written to _rd_.#
+is loaded, zero-extended to 64 bits, and written to _rd_.
 
-[#norm:lxsuwhu_enc]#`lxsuwhu` is an RV64-only instruction encoded in the
+[[norm:lxsuwhu_enc]]
+insn:lxsuwhu[] is an RV64-only instruction encoded in the
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`101`,
-_aq_=`0`, and _rl_=`0`.#
+_aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
@@ -687,13 +739,15 @@ Mnemonic::
 lxsuwwu _rd_, (_rs2_), _rs1_
 
 Description::
-[#norm:lxsuwwu_op]#This RV64-only instruction computes the effective address
+[[norm:lxsuwwu_op]]
+The insn:lxsuwwu[] instruction is RV64-only and computes the effective address
 as _X[rs2]_ + (_zext32(X[rs1])_ << 2). The word at the effective address is
-loaded, zero-extended to 64 bits, and written to _rd_.#
+loaded, zero-extended to 64 bits, and written to _rd_.
 
-[#norm:lxsuwwu_enc]#`lxsuwwu` is an RV64-only instruction encoded in the
+[[norm:lxsuwwu_enc]]
+insn:lxsuwwu[] is an RV64-only instruction encoded in the
 scaled unsigned-word-index mode with _funct5_=`11110`, _funct3_=`110`,
-_aq_=`0`, and _rl_=`0`.#
+_aq_=`0`, and _rl_=`0`.
 
 Included in: ext:zilx[]
 
