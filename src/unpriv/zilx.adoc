@@ -1,5 +1,5 @@
 [[ext:zilx]]
-=== ext:zilx[] Extension for Indexed Integer Load Instructions, Version 0.1
+=== ext:zilx[] Extension for Indexed Integer Load Instructions, Version 0.6
 
 The ext:zilx[] extension provides integer load instructions that compute
 their effective address from a base register and an index register.
