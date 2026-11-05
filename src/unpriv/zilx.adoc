@@ -113,14 +113,12 @@ of the same access size and signedness.
 
 [[norm:Zilx_sign_zero_extension]]
 Signed ext:zilx[] load forms sign-extend the
-loaded value to XLEN, and unsigned ext:zilx[] load forms zero-extend the
-loaded value to XLEN.
+loaded value to XLEN bits, and unsigned ext:zilx[] load forms zero-extend the
+loaded value to XLEN bits.
 
 [[norm:Zilx_exceptions_ordering]]
-A ext:zilx[] instruction follows the same
-exception, address-alignment, access-fault, page-fault, PMP, PMA, privilege,
-atomicity, and memory-ordering rules as the corresponding base integer load
-executed at the same effective address.
+The ext:zilx[] instructions have the same memory-ordering, protection, and
+address-translation behavior as the base integer loads and stores.
 
 ==== Assembly Syntax
 
@@ -375,7 +373,7 @@ lxh _rd_, (_rs2_), _rs1_
 Description::
 [[norm:lxh_op]]
 The insn:lxh[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
-The halfword at the effective address is loaded, sign-extended to XLEN, and
+The halfword at the effective address is loaded, sign-extended to XLEN bits, and
 written to _rd_.
 
 [[norm:lxh_enc]]
@@ -438,7 +436,7 @@ lxhu _rd_, (_rs2_), _rs1_
 Description::
 [[norm:lxhu_op]]
 The insn:lxhu[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
-The halfword at the effective address is loaded, zero-extended to XLEN, and
+The halfword at the effective address is loaded, zero-extended to XLEN bits, and
 written to _rd_.
 
 [[norm:lxhu_enc]]
@@ -480,7 +478,7 @@ lxsb _rd_, (_rs2_), _rs1_
 Description::
 [[norm:lxsb_op]]
 The insn:lxsb[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
-The byte at the effective address is loaded, sign-extended to XLEN, and
+The byte at the effective address is loaded, sign-extended to XLEN bits, and
 written to _rd_.
 
 [[norm:lxsb_enc]]
@@ -503,7 +501,7 @@ lxsh _rd_, (_rs2_), _rs1_
 Description::
 [[norm:lxsh_op]]
 The insn:lxsh[] instruction computes the effective address as _X[rs2]_ + (_X[rs1]_ * 2).
-The halfword at the effective address is loaded, sign-extended to XLEN, and
+The halfword at the effective address is loaded, sign-extended to XLEN bits, and
 written to _rd_.
 
 [[norm:lxsh_enc]]
@@ -566,7 +564,7 @@ lxsbu _rd_, (_rs2_), _rs1_
 Description::
 [[norm:lxsbu_op]]
 The insn:lxsbu[] instruction computes the effective address as _X[rs2]_ + _X[rs1]_.
-The byte at the effective address is loaded, zero-extended to XLEN, and
+The byte at the effective address is loaded, zero-extended to XLEN bits, and
 written to _rd_.
 
 [[norm:lxsbu_enc]]
@@ -589,7 +587,7 @@ lxshu _rd_, (_rs2_), _rs1_
 Description::
 [[norm:lxshu_op]]
 The insn:lxshu[] instruction computes the effective address as _X[rs2]_ + (_X[rs1]_ * 2).
-The halfword at the effective address is loaded, zero-extended to XLEN, and
+The halfword at the effective address is loaded, zero-extended to XLEN bits, and
 written to _rd_.
 
 [[norm:lxshu_enc]]
