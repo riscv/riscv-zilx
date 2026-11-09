@@ -8,10 +8,6 @@ On RV64, the extension also defines scaled loads that zero-extend the low
 32 bits of the index register before scaling and forming the effective
 address.
 
-[[norm:Zilx_no_new_state]]
-The ext:zilx[] extension adds no architectural
-state, CSRs, or memory-ordering rules.
-
 ==== Indexed Load Classes
 
 [#norm:Zilx_operand_roles]#Each ext:zilx[] instruction uses _rs1_ as the
